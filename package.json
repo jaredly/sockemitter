@@ -1,0 +1,34 @@
+{
+  "name": "sockemitter",
+  "version": "0.0.1",
+  "description": "EventEmitter over a network",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jaredly/sockemitter.git"
+  },
+  "keywords": [
+    "eventemitter",
+    "sockets",
+    "network",
+    "json"
+  ],
+  "author": "Jared Forsyth <jared@jaredforsyth.com>",
+  "license": "MIT",
+  "readmeFilename": "Readme.md",
+  "gitHead": "9ebb0b41d7ff717485c1d5b8fda0713b6668d145",
+  "devDependencies": {
+    "chai": "~1.7.2",
+    "jshint": "~2.1.9",
+    "mocha": "~1.12.0"
+  },
+  "dependencies": {
+    "json-socket": "~0.1.2"
+  }
+}
