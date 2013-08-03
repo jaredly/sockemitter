@@ -1,6 +1,14 @@
 
 var JsonSocket = require('json-socket')
 
+RegExp.quote = function(str) {
+    return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+};
+
+function regstar(text) {
+  return new RegExp(text.split('*').map(RegExp.quote).join('.*?'))
+}
+
 // An event emitter that uses a JsonSocket.
 // emit passes things over the wire, and data received
 // over the wire calls the listeners.
@@ -12,24 +20,33 @@ module.exports = SockEmitter
 
 function SockEmitter(socket) {
   this._listeners = {}
+  this._stars = {}
   this.sock = new JsonSocket(socket)
   this.sock.on('message', this._message.bind(this))
 }
 
 SockEmitter.prototype = {
   on: function (type, handler) {
-    if (!this._listeners[type]) {
-      this._listeners[type] = [];
+    var list = this._listeners
+    if (type.indexOf('*') !== -1) {
+      list = this._stars
     }
-    this._listeners[type].push(handler)
+    if (!list[type]) {
+      list[type] = [];
+    }
+    list[type].push(handler)
   },
   off: function (type, handler) {
-    if (!this._listeners[type]) {
+    var list = this._listeners
+    if (type.indexOf('*') !== -1) {
+      list = this._stars
+    }
+    if (!list[type]) {
       return false
     }
-    var idx = this._listeners[type].indexOf(handler)
+    var idx = list[type].indexOf(handler)
     if (idx === -1) return false
-    this._listeners[type].splice(idx, 1)
+    list[type].splice(idx, 1)
     return true
   },
   emit: function (type) {
@@ -38,11 +55,23 @@ SockEmitter.prototype = {
   },
   _message: function (message) {
     if (!message || !message.type || !Array.isArray(message.args)) {
-      return console.error('Invalid message received: %s', message)
+      return console.error('Invalid message received: %s', JSON.stringify(message))
     }
+    this._check_stars(message.type, message.args)
     if (!this._listeners[message.type]) return
     this._listeners[message.type].forEach(function (handler) {
       handler.apply(null, message.args)
     })
+  },
+  _check_stars: function (type, args) {
+    function handle(handler) {
+      handler.apply({event: type}, args)
+    }
+    for (var star in this._stars) {
+      if (!regstar(star).test(type)) {
+        continue;
+      }
+      this._stars[star].forEach(handle)
+    }
   }
 }

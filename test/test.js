@@ -49,4 +49,13 @@ describe('SockEmitter', function () {
     })
     io.emit('hello', 42, message)
   })
+
+  it('should work with wildcards', function (done) {
+    var message = {one: 2, three: 'fish'}
+    oi.on('one:*', function (got) {
+      expect(got).to.eql(message)
+      done()
+    })
+    io.emit('one:two', message)
+  })
 })
