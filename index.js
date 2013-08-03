@@ -8,6 +8,8 @@ var JsonSocket = require('json-socket')
 // As a result, se.on('foo', console.log); se.emit('foo', 5)
 // won't do what you might normally expect from an emitter.
 
+module.exports = SockEmitter
+
 function SockEmitter(socket) {
   this._listeners = {}
   this.sock = new JsonSocket(socket)
