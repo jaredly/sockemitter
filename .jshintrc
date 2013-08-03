@@ -1,5 +1,6 @@
 {
   "laxcomma": true,
   "-W033": false,
-  "node": true
+  "node": true,
+  "undef": true
 }

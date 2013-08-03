@@ -21,11 +21,21 @@ module.exports = SockEmitter
 function SockEmitter(socket) {
   this._listeners = {}
   this._stars = {}
+  this._anys = []
   this.sock = new JsonSocket(socket)
   this.sock.on('message', this._message.bind(this))
 }
 
 SockEmitter.prototype = {
+  any: function (handler) {
+    this._anys.push(handler)
+  },
+  offAny: function (handler) {
+    var idx =this._anys.indexOf(handler)
+    if (idx === -1) return false
+    this._anys.splice(idx, 1)
+    return true
+  },
   on: function (type, handler) {
     var list = this._listeners
     if (type.indexOf('*') !== -1) {
@@ -67,6 +77,7 @@ SockEmitter.prototype = {
     function handle(handler) {
       handler.apply({event: type}, args)
     }
+    this._anys.forEach(handle)
     for (var star in this._stars) {
       if (!regstar(star).test(type)) {
         continue;

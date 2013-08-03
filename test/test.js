@@ -1,41 +1,14 @@
-
+/*global it: true, describe: true, beforeEach: true */
 var expect = require('chai').expect
   , SockEmitter = require('../')
-  , EventEmitter = require('events').EventEmitter
-  , util = require('util')
-
-function Mocket() {
-  EventEmitter.call(this)
-}
-
-util.inherits(Mocket, EventEmitter)
-
-Mocket.prototype.write = function (data) {
-  this.emit('send:data', data)
-}
-
-Mocket.prototype.pair = function (other) {
-  other.on('send:data', function (data) {
-    this.emit('data', data)
-  })
-  this.on('send:data', function (data) {
-    other.emit('data', data)
-  })
-}
-
-function mockets() {
-  var m1 = new Mocket()
-    , m2 = new Mocket()
-  m1.pair(m2)
-  return [m1, m2]
-}
+  , Mocket = require('mockets')
 
 describe('SockEmitter', function () {
   var io
     , oi
     , mocks
   beforeEach(function () {
-    mocks = mockets()
+    mocks = Mocket.pair()
     io = new SockEmitter(mocks[0])
     oi = new SockEmitter(mocks[1])
   })
@@ -54,8 +27,19 @@ describe('SockEmitter', function () {
     var message = {one: 2, three: 'fish'}
     oi.on('one:*', function (got) {
       expect(got).to.eql(message)
+      expect(this.event).to.equal('one:two')
       done()
     })
     io.emit('one:two', message)
+  })
+
+  it('should register an any handler', function (done) {
+    var message = {one: 2, three: 'fish'}
+    oi.any(function (got) {
+      expect(got).to.eql(message)
+      expect(this.event).to.equal('something')
+      done()
+    })
+    io.emit('something', message)
   })
 })

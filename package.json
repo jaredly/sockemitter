@@ -26,7 +26,8 @@
   "devDependencies": {
     "chai": "~1.7.2",
     "jshint": "~2.1.9",
-    "mocha": "~1.12.0"
+    "mocha": "~1.12.0",
+    "mockets": "~0.1.0"
   },
   "dependencies": {
     "json-socket": "~0.1.2"
